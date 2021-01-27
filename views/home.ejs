@@ -1,0 +1,218 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+
+
+    <br>
+
+<body onload="idMatrixCreator()">
+
+    <% for (var i=1; i <=9; i++ ) { %>
+
+        <% for(var j=1; j<=9; j++) {%>
+
+            <input type="text" size="5" id=matrice<%=i %>_<%= j %>>
+
+
+                <%} %>
+                    <br>
+
+                    <% } %>
+
+                        <button onclick="startSolve()">Solve</button>
+
+                        <script>
+
+                            var solutionFound = false;
+
+                            var matrixOfIds = [];
+
+                            function idMatrixCreator() {
+
+                                for (i = 1; i <= 9; i++) {
+
+                                    var temp = [];
+
+                                    for (j = 1; j <= 9; j++) {
+
+                                        temp.push("matrice" + i + "_" + j)
+
+                                    }
+
+                                    matrixOfIds.push(temp)
+                                }
+
+                            }
+
+                            function getValueFromID(boxID) {
+
+                                return (document.getElementById(boxID).value)
+
+                            }
+
+                            function setValueFromID(boxID, newValue) {
+                                document.getElementById(boxID).value = newValue
+                            }
+
+                            function deepCloneArray(toBeCloned) {
+                                var result = []
+
+                                for (i = 0; i < 9; i++) {
+                                    var temp = []
+                                    for (j = 0; j < 9; j++) {
+                                        temp.push(toBeCloned[i][j])
+                                    }
+                                    result.push(temp)
+                                }
+
+                                return result
+                            }
+
+                            function startSolve() {
+
+                                var fixedMatrix = []
+                                var curentMatrix = [];
+
+                                for (i = 0; i < 9; i++) {
+                                    var temp = [];
+                                    for (j = 0; j < 9; j++) {
+                                        if (getValueFromID(matrixOfIds[i][j]) == '') {
+                                            setValueFromID(matrixOfIds[i][j], 0)
+                                        }
+
+                                        temp.push(getValueFromID(matrixOfIds[i][j]))
+                                    }
+                                    fixedMatrix.push(temp)
+                                    curentMatrix.push(temp)
+                                }
+
+                                backtrackingFunction(deepCloneArray(fixedMatrix), deepCloneArray(curentMatrix), 0, 0)
+
+                            }
+
+                            function isFixed(fixedMatrix, x, y) {
+                                if (fixedMatrix[y][x] != 0) return true
+
+                                return false
+                            }
+
+                            function isValid(curentMatrix, x, y) {
+
+                                for (i = 0; i < 9; i++) {
+
+                                    if (i != y) {
+                                        if (curentMatrix[i][x] == curentMatrix[y][x] && curentMatrix[i][x] != 0) return false
+                                    }
+
+                                    if (i != x) {
+                                        if (curentMatrix[y][i] == curentMatrix[y][x] && curentMatrix[y][i] != 0) return false
+                                    }
+
+                                }
+
+                                var startX, startY, finalX, finalY
+
+                                startX = (Math.floor(x / 3)) * 3
+                                startY = (Math.floor(y / 3)) * 3
+
+                                finalX = startX + 2
+                                finalY = startY + 2
+
+                                for (i = startY; i <= finalY; i++) {
+                                    for (j = startX; j <= finalX; j++) {
+
+                                        if (curentMatrix[i][j] == curentMatrix[y][x] && i != y && j != x) {
+                                            return false
+                                        }
+
+                                    }
+                                }
+                                return true
+
+                            }
+
+                            function nextX(x) {
+                                if (x == 8) return 0;
+                                return x + 1
+                            }
+
+                            function nextY(x, y) {
+                                if (x == 8) return y + 1
+                                return y
+                            }
+
+                            function printMatrix(curentMatrix) {
+
+                                for (i = 0; i < 9; i++) {
+                                    for (j = 0; j < 9; j++) {
+                                        setValueFromID(matrixOfIds[i][j], curentMatrix[i][j])
+                                    }
+                                }
+
+                            }
+
+                            function isSolution(curentMatrix) {
+
+                                for (i = 0; i < 9; i++) {
+                                    for (j = 0; j < 9; j++) {
+                                        if (curentMatrix[i][j] == 0) return false;
+                                    }
+                                }
+
+                                for (i = 0; i < 9; i++) {
+                                    for (j = 0; j < 9; j++) {
+                                        if (curentMatrix[i][j] == 0) return isValid(curentMatrix, j, i);
+                                    }
+                                }
+
+                                return true;
+
+                            }
+
+                            function backtrackingFunction(fixedMatrix, curentMatrix, x, y) {
+                                if (solutionFound == false) {
+                                    if (isFixed(fixedMatrix, x, y) == true && solutionFound == false) {
+                                        if (isSolution(curentMatrix)) {
+                                            console.log(curentMatrix);
+                                        }
+                                        else {
+                                            backtrackingFunction(deepCloneArray(fixedMatrix), deepCloneArray(curentMatrix), nextX(x), nextY(x, y));
+                                        }
+                                    }
+                                    else {
+
+                                        for (var i = 1; i < 10; i++) {
+                                            if (solutionFound == false) {
+                                                curentMatrix[y][x] = i;
+
+                                                if (isValid(curentMatrix, x, y)) {
+
+                                                    setValueFromID(matrixOfIds[y][x], i)
+
+                                                    if (isSolution(curentMatrix)) {
+                                                        console.log(curentMatrix);
+                                                        solutionFound = true;
+                                                    }
+
+                                                    else {
+                                                        backtrackingFunction(deepCloneArray(fixedMatrix), deepCloneArray(curentMatrix), nextX(x), nextY(x, y));
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+
+
+                        </script>
+
+</body>
+
+</html>
