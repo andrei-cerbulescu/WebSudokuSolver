@@ -16,7 +16,7 @@
 
         <% for(var j=1; j<=9; j++) {%>
 
-            <input type="text" size="5" id=matrice<%=i %>_<%= j %>>
+            <input type="text" size="1" style id=matrice<%=i %>_<%= j %>>
 
 
                 <%} %>
@@ -25,6 +25,7 @@
                     <% } %>
 
                         <button onclick="startSolve()">Solve</button>
+                        <button onclick="resetBoard()">Reset</button>
 
                         <script>
 
@@ -89,6 +90,16 @@
                                     }
                                     fixedMatrix.push(temp)
                                     curentMatrix.push(temp)
+                                }
+                                
+                                for(i=0;i<9;i++){
+                                    for(j=0;j<9;j++){
+
+                                        if(document.getElementById(matrixOfIds[i][j]).value == '' || document.getElementById(matrixOfIds[i][j]).value == '0'){
+                                            document.getElementById(matrixOfIds[i][j]).style.backgroundColor="#b3ffb6";
+                                        }
+
+                                    }
                                 }
 
                                 backtrackingFunction(deepCloneArray(fixedMatrix), deepCloneArray(curentMatrix), 0, 0)
@@ -208,6 +219,19 @@
 
                                     }
                                 }
+                            }
+
+                            function resetBoard(){
+
+                                for(i=0;i<9;i++){
+                                    for(j=0;j<9;j++){
+                                        document.getElementById(matrixOfIds[i][j]).value = ''
+                                        document.getElementById(matrixOfIds[i][j]).style.backgroundColor = 'white'
+                                        solutionFound = false
+
+                                    }
+                                }
+
                             }
 
 
